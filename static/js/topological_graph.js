@@ -1,3 +1,136 @@
+TOPO_URL = 'http://192.168.19.1:8081/wm/topology/links/json' <!--拓扑URL
+LINK_URL = 'http://192.168.19.1:8081/wm/device/' <!-- 主机和交换机的链接关系URL
+DATA_URL = 'http://192.168.19.1:8888/sc/globalflow/' <!-- 全局流数据的URL
+
+<!-- 通过URL得到的结果为列表，列表中每个成员都是一个json对象,目前存在跨域问题
+function obtain_data(url){
+    if (window.XMLHttpRequest) {
+        xmlHttp = new XMLHttpRequest
+    } 
+    else {
+        xmlHttp = new ActiveXObject
+    }
+    <!-- xmlHttp.onreadystatechange = writeSource() 不知道之后检测readystate会有什么意外
+    xmlHttp.open("GET",url,true);
+    xmlHttp.send(null)
+    if (xmlHttp.readyState == 4) {
+        var tmpData = xmlHttp.responseText
+        var result = eval("("+tmpData+")")
+    }
+    return result
+}
+
+
+function unique(arr){
+    var result = [], isRepeated;
+    for (var i = 0 ;i<arr.length;i++){
+	isRepeated = false;
+	for (var j=0;j<result.length;j++){
+	    if (arr[i] == result[j]){
+		isRepeated = true;
+		break;
+	    }
+	}
+	if (!isRepeated){
+	    result.push(arr[i]);
+    }
+    }
+    return result;
+}
+TOPO_DATA = [{"src-switch":"00:00:00:00:00:00:00:02","src-port":2,"dst-switch":"00:00:00:00:00:00:00:04","dst-port":1,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:03","src-port":2,"dst-switch":"00:00:00:00:00:00:00:05","dst-port":2,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:02","src-port":3,"dst-switch":"00:00:00:00:00:00:00:05","dst-port":1,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:01","src-port":2,"dst-switch":"00:00:00:00:00:00:00:03","dst-port":1,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:01","src-port":1,"dst-switch":"00:00:00:00:00:00:00:02","dst-port":1,"type":"internal","direction":"bidirectional"}]
+
+LINK_DATA = [
+    {
+        "entityClass": "DefaultEntityClass",
+        "mac": [
+            "9a:c6:60:d9:2f:59"
+        ],
+        "ipv4": [
+            "10.0.0.1"
+        ],
+        "vlan": [],
+        "attachmentPoint": [
+            {
+                "switchDPID": "00:00:00:00:00:00:00:03",
+                "port": 3,
+                "errorStatus": null
+            }
+        ],
+        "lastSeen": 1436604849504
+    },
+    {
+        "entityClass": "DefaultEntityClass",
+        "mac": [
+            "da:2b:ae:ac:6d:04"
+        ],
+        "ipv4": [
+            "10.0.0.2"
+        ],
+        "vlan": [],
+        "attachmentPoint": [
+            {
+                "switchDPID": "00:00:00:00:00:00:00:04",
+                "port": 2,
+                "errorStatus": null
+            }
+        ],
+        "lastSeen": 1436604849496
+    }
+] 
+
+GLOBAL_DATA = {
+    "status": "ok",
+    "result": {
+        "83e9b80891341b517f0c5355fffa2fb6": {
+            "matchlist": [
+                {
+                    "id": "91fc742a6e595a18a8d60bfe3c4431c5",
+                    "wildcards": 3678448,
+                    "inputPort": -2,
+                    "dataLayerSource": "da:2b:ae:ac:6d:04",
+                    "dataLayerDestination": "9a:c6:60:d9:2f:59",
+                    "dataLayerVirtualLan": -1,
+                    "dataLayerVirtualLanPriorityCodePoint": 0,
+                    "dataLayerType": "0x0800",
+                    "networkTypeOfService": "0",
+                    "networkProtocol": 1,
+                    "networkSource": "10.0.0.2",
+                    "networkDestination": "10.0.0.1",
+                    "networkSourceInt": -1,
+                    "networkDestinationInt": -1,
+                    "transportSource": 0,
+                    "transportDestination": 0,
+                    "networkDestinationMaskLen": 32,
+                    "networkSourceMaskLen": 32,
+                    "queryPage": 1,
+                    "querySize": 5,
+                    "match": "e0:db:55:1f:99:b4;c8:1f:66:f3:c5:43;0.0.0.0;0.0.0.0;0;0;0;-1;-1;0;0;0;0;3678448",
+                    "redirect": true
+                }
+            ],
+            "pathlink": [
+                {
+                    "nodeId": "00:00:00:00:00:00:00:04",
+                    "portId": 1
+                },
+                {
+                    "nodeId": "00:00:00:00:00:00:00:02",
+                    "portId": 3
+                },
+                {
+                    "nodeId": "00:00:00:00:00:00:00:05",
+                    "portId": 2
+                },
+                {
+                    "nodeId": "00:00:00:00:00:00:00:03",
+                    "portId": null
+                }
+            ],
+            "packetCount": 113,
+            "byteCount": 11074
+        }
+    }
+}
 require.config({
 	paths:{
 		echarts:'/static/js/echarts-2.2.5/build/dist'
@@ -141,65 +274,12 @@ require(
                                         }
 				]
 						};
-		var hostSwitcherData = [
-    {
-        "entityClass": "DefaultEntityClass",
-        "mac": [
-            "9a:c6:60:d9:2f:59"
-        ],
-        "ipv4": [
-            "10.0.0.1"
-        ],
-        "vlan": [],
-        "attachmentPoint": [
-            {
-                "switchDPID": "00:00:00:00:00:00:00:03",
-                "port": 3,
-                "errorStatus": null
-            }
-        ],
-        "lastSeen": 1436604849504
-    },
-    {
-        "entityClass": "DefaultEntityClass",
-        "mac": [
-            "da:2b:ae:ac:6d:04"
-        ],
-        "ipv4": [
-            "10.0.0.2"
-        ],
-        "vlan": [],
-        "attachmentPoint": [
-            {
-                "switchDPID": "00:00:00:00:00:00:00:04",
-                "port": 2,
-                "errorStatus": null
-            }
-        ],
-        "lastSeen": 1436604849496
-    }
-] 
+		var hostSwitcherData = LINK_DATA
 		var pointData = []
 		var lineData = []
 		var geoCoord1 = {}
-                var topoData = [{"src-switch":"00:00:00:00:00:00:00:02","src-port":2,"dst-switch":"00:00:00:00:00:00:00:04","dst-port":1,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:03","src-port":2,"dst-switch":"00:00:00:00:00:00:00:05","dst-port":2,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:02","src-port":3,"dst-switch":"00:00:00:00:00:00:00:05","dst-port":1,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:01","src-port":2,"dst-switch":"00:00:00:00:00:00:00:03","dst-port":1,"type":"internal","direction":"bidirectional"},{"src-switch":"00:00:00:00:00:00:00:01","src-port":1,"dst-switch":"00:00:00:00:00:00:00:02","dst-port":1,"type":"internal","direction":"bidirectional"}]
+                var topoData = TOPO_DATA
                 var switchNode=[]
-                function unique(arr){
-                    var result = [], isRepeated;
-                    for (var i = 0 ;i<arr.length;i++){
-                        isRepeated = false;
-                        for (var j=0;j<result.length;j++){
-                            if (arr[i] == result[j]){
-                                isRepeated = true;
-                                break;
-                            }
-                        }
-                        if (!isRepeated){
-                            result.push(arr[i]);
-                    }
-                    }
-                    return result;
-                }
 		for (var json=0;json<topoData.length;json++)
 		{
                     var srcSwitch = topoData[json]["src-switch"]
@@ -247,59 +327,7 @@ require(
 			}
 
 
-                var globalData = {
-    "status": "ok",
-    "result": {
-        "83e9b80891341b517f0c5355fffa2fb6": {
-            "matchlist": [
-                {
-                    "id": "91fc742a6e595a18a8d60bfe3c4431c5",
-                    "wildcards": 3678448,
-                    "inputPort": -2,
-                    "dataLayerSource": "da:2b:ae:ac:6d:04",
-                    "dataLayerDestination": "9a:c6:60:d9:2f:59",
-                    "dataLayerVirtualLan": -1,
-                    "dataLayerVirtualLanPriorityCodePoint": 0,
-                    "dataLayerType": "0x0800",
-                    "networkTypeOfService": "0",
-                    "networkProtocol": 1,
-                    "networkSource": "10.0.0.2",
-                    "networkDestination": "10.0.0.1",
-                    "networkSourceInt": -1,
-                    "networkDestinationInt": -1,
-                    "transportSource": 0,
-                    "transportDestination": 0,
-                    "networkDestinationMaskLen": 32,
-                    "networkSourceMaskLen": 32,
-                    "queryPage": 1,
-                    "querySize": 5,
-                    "match": "e0:db:55:1f:99:b4;c8:1f:66:f3:c5:43;0.0.0.0;0.0.0.0;0;0;0;-1;-1;0;0;0;0;3678448",
-                    "redirect": true
-                }
-            ],
-            "pathlink": [
-                {
-                    "nodeId": "00:00:00:00:00:00:00:04",
-                    "portId": 1
-                },
-                {
-                    "nodeId": "00:00:00:00:00:00:00:02",
-                    "portId": 3
-                },
-                {
-                    "nodeId": "00:00:00:00:00:00:00:05",
-                    "portId": 2
-                },
-                {
-                    "nodeId": "00:00:00:00:00:00:00:03",
-                    "portId": null
-                }
-            ],
-            "packetCount": 113,
-            "byteCount": 11074
-        }
-    }
-}
+                var globalData = GLOBAL_DATA
                 var pointData2 = []
                 var lineData2 = [] 
                 for (x in globalData['result'])         
