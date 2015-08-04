@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Scan Example</title>
+</head>
+<body>
+    <!-- 为ECharts准备一个具备大小（宽高）的Dom -->
+    <div id="main" style="height:600px"></div>
+    <!-- ECharts单文件引入 -->
+    <script src="http://echarts.baidu.com/build/dist/echarts.js"></script>
+    <script type="text/javascript">
+
+        // 路径配置
+        require.config({
+            paths: {
+                echarts: 'http://echarts.baidu.com/build/dist'
+            }
+        });
+        
+        // 使用
+        require(
+            [
+                'echarts',
+                'echarts/chart/map' 
+            ],
+		
+            function (ec) {
+                // 基于准备好的dom，初始化echarts图表
+                var myChart = ec.init(document.getElementById('main')); 
+                
+                var option = {
+                                 backgroundColor: '#1b1b1b',
+								color: ['gold','aqua','lime'],
+								title : {
+									text: 'Scan',
+									subtext:'Scan Analysis',
+									x:'center',
+									textStyle : {
+										color: '#fff'
+									}
+								},
+								tooltip : {
+									trigger: 'item',
+									formatter: '{b}'
+								},
+								dataRange: {
+                                    min : 0,
+                                    max : 10,
+                                    calculable : true,
+                                    color: ['#ff3333', 'orange', 'yellow','lime','aqua'],
+                                textStyle:{
+                                    color:'#fff'
+                                          }
+                                },
+								series : [
+									{
+										name: '全国',
+										type: 'map',
+										roam: true,
+										hoverable: false,
+										mapType: 'world',
+										itemStyle:{
+											normal:{
+												borderColor:'rgba(100,149,237,1)',
+												borderWidth:0.5,
+												areaStyle:{
+													color: '#1b1b1b'
+												}
+											}
+										},
+										data:[],
+										markLine : {
+											smooth:true,
+											smoothness:0.6,
+										    //symbol:['none','circle'],
+											//symbolSize:1,
+											effect : {
+												show: true,
+												scaleSize: 2,
+												period: 30,
+												color: '#fff',
+												shadowBlur: 10
+											},
+											itemStyle : {
+												normal: {
+													borderWidth:1,
+													lineStyle: {
+														type: 'solid',
+														shadowBlur: 10
+													}
+												}
+											},
+											data : [],
+										},
+										markPoint : {
+											symbol:'emptyCircle',
+											symbolSize : function (v){
+												return 10 + v/10
+											},
+											effect : {
+												show: true,
+												shadowBlur : 0
+											},
+											itemStyle:{
+												normal:{
+													label:{show:false}
+												},
+												emphasis: {
+													label:{position:'top'}
+												}
+											},
+											data:[]
+											},
+										geoCoord: {}
+									},
+								]
+                };
+        var scanList = [{"clientip":"92.241.74.146","serversubnet":"122.115.40.0","serverport":"3389","protocol":6,"minip":64,"maxip":70,"timestart":1431016304,"timeend":1431016312,"servercount":4,"flowscount":4,"serverips":"64|67|65|70","clientlocation":[{"ip":"92.241.74.146","lon":"116.4551","lat":"40.2539"}],"serverlocation":[{"ip":"122.115.40.0","lon":"116.4551","lat":"40.2539"}]},{"clientip":"218.57.232.102","serversubnet":"122.115.40.0","serverport":"1996","protocol":6,"minip":65,"maxip":70,"timestart":1431016426,"timeend":1431016433,"servercount":3,"flowscount":3,"serverips":"67|70|65","clientlocation":[{"ip":"218.57.232.102","lon":"116.4551","lat":"40.2539"}],"serverlocation":[{"ip":"122.115.40.0","lon":"116.4551","lat":"40.2539"}]},{"clientip":"94.102.51.96","serversubnet":"122.115.40.0","serverport":"3389","protocol":6,"minip":64,"maxip":70,"timestart":1431016304,"timeend":1431016312,"servercount":3,"flowscount":3,"serverips":"65|70|64","clientlocation":[{"ip":"94.102.51.96","lon":"4.9167","lat":"52.35"}],"serverlocation":[{"ip":"122.115.40.0","lon":"113.5325","lat":"34.6836"}]},{"clientip":"192.184.51.130","serversubnet":"122.115.40.0","serverport":"8088","protocol":6,"minip":65,"maxip":71,"timestart":1431016182,"timeend":1431016738,"servercount":4,"flowscount":4,"serverips":"70|71|67|65","clientlocation":[{"ip":"192.184.51.130","lon":"-117.8535","lat":"34.0115"}],"serverlocation":[{"ip":"122.115.40.0","lon":"113.5325","lat":"34.6836"}]},{"clientip":"222.186.190.80","serversubnet":"122.115.40.0","serverport":"3306","protocol":6,"minip":64,"maxip":70,"timestart":1431016487,"timeend":1431016493,"servercount":4,"flowscount":4,"serverips":"65|67|70|64","clientlocation":[{"ip":"222.186.190.80","lon":"118.7778","lat":"32.0617"}],"serverlocation":[{"ip":"122.115.40.0","lon":"113.5325","lat":"34.6836"}]}]
+       // alert(scanList.length)
+        var lineData = []
+		var pointData = []
+		
+		var geoCoord1 = {}
+		
+		var i = 0
+		var j = 0
+		
+		//var count = []
+		
+		var tmpName = []
+		var tmpCount = []
+		
+        for (var json=0;json<scanList.length;json++)
+            {
+            lineData[i] = [{name:scanList[json]["serversubnet"]+'\r\nprotocol:'+scanList[json]["protocol"]+'\r\nminip:'+scanList[json]["minip"]+'\r\nmaxip:'+scanList[json]["maxip"]+'\r\ntimestart:'+scanList[json]["timestart"]+'\r\ntimeend:'+scanList[json]["timeend"]+'\r\nservercount:'+scanList[json]["servercount"]+'\r\nflowscount:'+scanList[json]["flowscount"]},{name:scanList[json]["clientip"],value:scanList[json]["servercount"]}]
+			geoCoord1[scanList[json]["clientip"]] = [scanList[json]["clientlocation"][0]["lon"],scanList[json]["clientlocation"][0]["lat"]]
+			geoCoord1[scanList[json]["serversubnet"]+'\r\nprotocol:'+scanList[json]["protocol"]+'\r\nminip:'+scanList[json]["minip"]+'\r\nmaxip:'+scanList[json]["maxip"]+'\r\ntimestart:'+scanList[json]["timestart"]+'\r\ntimeend:'+scanList[json]["timeend"]+'\r\nservercount:'+scanList[json]["servercount"]+'\r\nflowscount:'+scanList[json]["flowscount"]] = [scanList[json]["serverlocation"][0]["lon"],scanList[json]["serverlocation"][0]["lat"]]
+            i = i+1
+			
+			//if (!count[geoCoord1[scanList[json]["clientip"]]])
+			//{
+			//count[geoCoord1[scanList[json]["clientip"]]] = 0
+			//}
+
+			if (scanList[json]["clientlocation"][0]["lon"] == scanList[json]["serverlocation"][0]["lon"] && scanList[json]["clientlocation"][0]["lat"] == scanList[json]["serverlocation"][0]["lat"])
+			    {
+				if (!tmpName[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]])
+				{
+				tmpName[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]] = scanList[json]["clientip"]+'>'+scanList[json]["serversubnet"]
+				tmpCount[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]] = scanList[json]["servercount"]
+				}
+				else
+				{
+				tmpCount[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]] = Math.max(parseInt(tmpCount[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]]),parseInt(scanList[json]["servercount"]))
+				tmpName[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]] = tmpName[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]] + ' ' + scanList[json]["clientip"]+'>'+scanList[json]["serversubnet"]
+				}
+				//alert(tmpCount[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lon"]])
+				
+			    //alert(tmpName[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]])
+				//count[geoCoord1[scanList[json]["clientip"]]] = count[geoCoord1[scanList[json]["clientip"]]] + 1
+				//alert(count[geoCoord1[scanList[json]["clientip"]]])
+				//pointData[j] = {name:tmpName[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]],value:tmpCount[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lon"]]}	
+				//geoCoord1[tmpName[scanList[json]["clientlocation"][0]["lon"]+'+'+scanList[json]["serverlocation"][0]["lat"]]] = geoCoord1[scanList[json]["clientip"]]	
+				}
+				
+			}
+		for ( key in tmpName)
+		{
+		    alert(tmpName[key])
+		    geoCoord1[tmpName[key]] = [key.split('+')[0],key.split('+')[1]]
+			//alert(key+'+'+geoCoord1(tmpName[key])
+			//alert(tmpName[key])
+			//alert(tmpCount[key])
+			alert(tmpCount[key])
+			pointData[j] = {name:tmpName[key],value:tmpCount[key]}
+			j = j+1
+		}
+        option.series[0].markLine.data = lineData
+		option.series[0].geoCoord = geoCoord1
+		//pointData = [{name:"92.241.74.146",value:5}]
+		option.series[0].markPoint.data = pointData
+                // 为echarts对象加载数据 
+         myChart.setOption(option); 
+            }
+        );
+		
+    </script>
+</body>
+</html>
