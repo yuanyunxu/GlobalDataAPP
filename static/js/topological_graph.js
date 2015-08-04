@@ -131,6 +131,8 @@ GLOBAL_DATA = {
         }
     }
 }
+
+<!-- echarts related
 require.config({
 	paths:{
 		echarts:'/static/js/echarts-2.2.5/build/dist'
