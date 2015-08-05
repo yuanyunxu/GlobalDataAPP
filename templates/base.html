@@ -6,6 +6,24 @@
 	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/eso-theme.css">
 	<link rel="stylesheet" type="text/css" href="{{ STATIC_URL }}css/bootstrap.css">
 	<script src="{{ STATIC_URL }}js/lib/jquery.min.js" type="text/javascript"></script>
+	<script src="/static/js/metro/modernizr-2.6.1.min.js"></script>
+	<script type="text/javascript" src="/static/js/metro/google-code-prettify/prettify.js"></script>
+	<script type="text/javascript" src="/static/js/metro/jquery.mousewheel.js"></script>
+	<script type="text/javascript" src="/static/js/metro/jquery.scrollTo.js"></script>
+	<script type="text/javascript" src="/static/js/metro/bootstrap.min.js"></script>
+	<script type="text/javascript" src="/static/js/metro/bootmetro.js"></script>
+	<script type="text/javascript" src="/static/js/metro/bootmetro-charms.js"></script>
+	<script type="text/javascript" src="/static/js/metro/demo.js"></script>
+	<script type="text/javascript" src="/static/js/metro/holder.js"></script>
+	<script type="text/javascript" src="/static/js/drawTree.js"></script>
+	<script src="/static/js/PageViewJS.js" type="text/javascript"></script>
+        <script>
+ $(".metro").metro();
+
+$.ajaxSetup({"error":function(XMLHttpRequest,textStatus, errorThrown) {   
+	  alert("error status: "+ textStatus+", error thrown: "+ errorThrown + ", response: "+XMLHttpRequest.responseText);
+}});
+        </script>
 	{% block customstyle %}{% endblock %}
 	{% block customjs %}{% endblock %}
 </head>
