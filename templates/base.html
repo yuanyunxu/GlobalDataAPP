@@ -36,7 +36,14 @@
 			{% else %}
 			<li>
 			{% endif %}
-			<a href="{{ global_url }}">Global Retrieve</a>
+			<a href="{% url 'global_retrieve' %}">Global Retrieve</a>
+			</li>
+			{% if cv_flow_statis %}
+			<li class="active">
+			{% else %}
+			<li>
+			{% endif %}
+			<a href="{% url 'flow_statis' %}">Flow Statistic</a>
 			</li>
 			{% if user.is_superuser %}
 			<li class="">

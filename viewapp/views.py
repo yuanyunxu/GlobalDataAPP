@@ -17,6 +17,7 @@ from django.views.decorators.http import require_GET
 from logging import getLogger
 
 logger = getLogger("views_logger")
+
 GLOBAL_URL = 'http://www.example.com'   # The method to load in the GLOBAL_URL need to be optimized
 
 def index(request):
@@ -26,7 +27,7 @@ def index(request):
     """
     args_data = {
             'cv_index': True,
-            'global_url':GLOBAL_URL,
+#            'global_url':GLOBAL_URL,
             }
     return render_to_response(
             "viewapp/index.html",
@@ -39,7 +40,7 @@ def topological_graph_show(request):
     dateFrom, dateTo = get_date_range(request)
     args_data = {
             'cv_topological_graph': True,
-            'global_url':GLOBAL_URL,
+#            'global_url':GLOBAL_URL,
             'dateFrom': dateFrom,
             'dateTo': dateTo,
             }
@@ -47,7 +48,27 @@ def topological_graph_show(request):
                               args_data,
                               context_instance=RequestContext(request))
 
+@require_GET
+def global_retrieve_show(request):
+    args_data = {
+            'cv_global_retrieve': True,
+            }
+    return render_to_response('viewapp/global_retrieve.html',
+                              args_data,
+                              context_instance=RequestContext(request))
+
+
+@require_GET
+def flow_statis_show(request):
+    args_data = {
+            'cv_flow_statis': True,
+            }
+    return render_to_response('viewapp/flow_statis.html',
+                              args_data,
+                              context_instance=RequestContext(request))
+
 def get_date_range(request):
+
     if 'datefrom' in request.GET and 'dateto' in request.GET:
         try:
             dateFromStr = request.GET['datefrom']

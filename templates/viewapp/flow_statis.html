@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+
+{% block customjs %}
+<script>
+//var grUrl="http://192.168.3.141:8888/sc/globalflow/records";
+var grUrl="http://sc.research.intra.nsfocus.com:8888/sc/globalflow/records";
+function submitQuery(form){
+    with(form){
+        $.ajax({
+            type:"GET",
+            url: grUrl,
+            data: {
+                src_mac: src_mac.value,
+                dst_mac: dst_mac.value,
+                src_ip: src_ip.value,
+                dst_ip: dst_ip.value,
+                src_port: src_port.value,
+                dst_port: dst_port.value,
+                starttime: starttime.value,
+                endtime: endtime.value
+            },
+            dataType: 'json',
+            async: false,
+            success: function(data){
+                if(data.status && data.status=="ok")
+                {  
+                    var result=data.result;
+                    $("#packets").text(result.totalPacketCount);
+                    $("#bytes").text(result.totalByteCount);
+                }
+                else
+                {   
+                    alert("response error: " + result.status+", msg: "+result.msg);
+                } 
+            },
+            failure: function(errMsg) {
+                alert("ajax error: " + result.msg);
+            }
+        }); 
+    }
+    return false;
+}
+$(document).ready(function(){
+    $("#query_btn").click(function(){
+        submitQuery($("#query_form"));
+    });
+    $("#test_btn").click(function(){
+        testFormat($("#query_form"));
+    });
+});
+</script>
+{% endblock customjs %}
+{% block content %}
+<div id=query_zone>
+    <h2>统计流量</h2>
+    <div id=query_form>
+        <table class="table table-bordered table-striped datatable">
+        <tbody width=70%>
+        <tr><td>源MAC地址: </td><td><input type="text" name="src_mac" id="src_mac"/></td></tr>
+        <tr><td>目的MAC地址: </td><td><input type="text" name="dst_mac" id="dst_mac"/></td><tr>
+        <tr><td>源IP:</td><td><input type="text" name="src_ip" id="src_ip"/></td></tr>
+        <tr><td>目的IP: </td><td><input type="text" name="dst_ip" id="dst_ip"/></td></tr>
+        <tr><td>源端口: </td><td><input type="text" name="src_port" id="src_port"/></td></tr>
+        <tr><td>目的端口: </td><td><input type="text" name="dst_port" id="dst_port" /></td></tr>
+        <tr><td>起始时间：</td><td><input type="text" name="starttime" id="starttime" /></td></tr>
+        <tr><td>终止时间：</td><td><input type="text" name="endtime" id="endtime" /></td></tr>
+        </tbody></table>
+        <button id="query_btn">统计查询</button>
+       <!-- <button id="test_btn">测试按钮</button> -->
+       <div style="">
+      <h1>total packets:
+        <div id="packets" class="label label_default"></div>
+      </h1>
+      <h1>total bytes:
+       <div id="bytes" class="label label_default"></div>
+       </h1>
+    </div>
+</div>
+
+<div id="divPage" style="text-align:center"></div>
+</div>
+{% endblock content %}
