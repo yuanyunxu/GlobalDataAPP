@@ -31,6 +31,13 @@
 			{% endif %}
 			<a href="{% url 'topological_graph' %}">Topological Graph</a>
 			</li>
+			{% if cv_global_retrieve %}
+			<li class="active">
+			{% else %}
+			<li>
+			{% endif %}
+			<a href="{{ global_url }}">Global Retrieve</a>
+			</li>
 			{% if user.is_superuser %}
 			<li class="">
 			<a href="{% url 'admin:index' %}">Admin</a>

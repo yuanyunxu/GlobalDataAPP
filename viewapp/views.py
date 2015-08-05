@@ -17,6 +17,7 @@ from django.views.decorators.http import require_GET
 from logging import getLogger
 
 logger = getLogger("views_logger")
+GLOBAL_URL = 'http://www.example.com'   # The method to load in the GLOBAL_URL need to be optimized
 
 def index(request):
     """
@@ -24,7 +25,8 @@ def index(request):
     website.
     """
     args_data = {
-            'cv_index': True
+            'cv_index': True,
+            'global_url':GLOBAL_URL,
             }
     return render_to_response(
             "viewapp/index.html",
@@ -37,6 +39,7 @@ def topological_graph_show(request):
     dateFrom, dateTo = get_date_range(request)
     args_data = {
             'cv_topological_graph': True,
+            'global_url':GLOBAL_URL,
             'dateFrom': dateFrom,
             'dateTo': dateTo,
             }
