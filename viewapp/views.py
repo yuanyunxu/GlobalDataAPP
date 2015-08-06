@@ -21,8 +21,9 @@ from logging import getLogger
 
 logger = getLogger("views_logger")
 
-GLOBAL_URL = 'http://www.example.com'   # The method to load in the GLOBAL_URL need to be optimized
+TOPO_URL = 'http://192.168.19.1:8081/wm/topology/links/json'   # Define the topo_graph's data source
 
+LINK_URL = 'http://192.168.19.1:8081/wm/device/'
 def index(request):
     """
     Home Page of data application,show the introduction of the
@@ -40,12 +41,15 @@ def index(request):
 
 @require_GET
 def topological_graph_show(request):
-    dateFrom, dateTo = get_date_range(request)
+    status1, topo_data= client.http_request(TOPO_URL,"GET")
+    topo_data=json.dumps(topo_data)
+
+    status2, link_data = client.http_request(LINK_URL,"GET")
+    link_data=json.dumps(link_data)
     args_data = {
             'cv_topological_graph': True,
-#            'global_url':GLOBAL_URL,
-            'dateFrom': dateFrom,
-            'dateTo': dateTo,
+            'topo_data': topo_data,
+            'link_data': link_data,
             }
     return render_to_response('viewapp/topological_graph.html',
                               args_data,
@@ -87,7 +91,7 @@ def get_date_range(request):
 
 #Copy from the global_traffic
 
-sc="http://192.168.19.12:8888"
+sc="http://192.168.19.1:8888"
 def testFormat(req):
     return HttpResponse('{"status":"ok","result":[{"matchlist":[{"wildcards":3145728,"inputPort":0,"dataLayerSource":"00:11:22:03:04:02","dataLayerDestination":"00:90:0b:01:78:e9","dataLayerVirtualLan":-1,"dataLayerVirtualLanPriorityCodePoint":0,"dataLayerType":2048,"networkTypeOfService":"0","networkProtocol":6,"networkSource":"10.201.111.1","networkDestination":"163.177.153.55","transportSource":-9331,"transportDestination":80,"networkDestinationMaskLen":32,"networkSourceMaskLen":32,"match":"00:90:0b:01:78:e900:11:22:03:04:022048-1-1163.177.153.5532610.201.111.132080-93313145728"}],"pathlink":{"dpid":"00:00:e0:db:55:1f:00:01","inport":"1","prevNodeOutport":"s","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:02","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:04","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:07","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]},{"dpid":"00:00:00:1e:08:09:00:08","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]}]}]},{"dpid":"00:00:00:1e:08:09:00:03","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:05","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]},{"dpid":"00:00:00:1e:08:09:00:06","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null},{"dpid":null,"inport":null,"prevNodeOutport":"3","nextNodes":null}]}]}]}}]}')
 
@@ -125,7 +129,6 @@ def dealWithFormFlow(request):
     resp=json.dumps(result)
     #print str(resp)
     return HttpResponse(resp)
-@require_POST
 def dealWithForm(request):
     print "request body:"
     print str(request.body)
@@ -149,17 +152,10 @@ def dealWithForm(request):
         post_data['curPage']=req.get('curPage')
     if(req.get('size')):
         post_data['size']=req.get('size')
-    print post_data
-    
-    #url='http://sc.research.intra.nsfocus.com:8888/sc/globalflow/'
     url=sc+'/sc/globalflow/'
     post_str=json.dumps(post_data)
-
-    #status, result= client.http_request(url,"GET",post_str)
+    print 'post data:',post_str
+    print 'url :',url
     status, result= client.http_request(url,"POST",post_str)
-    print post_str
-    #result= client.http_request(url,"POST",post_str)
     resp=json.dumps(result)
-    print resp
     return HttpResponse(resp)
-   # return HttpResponse(post_str)

@@ -17,6 +17,10 @@
 {% endblock %}
 {% block content %}
 <div id="main" style="height:600px"></div>
+<script>
+TOPO_DATA = eval("("+'{{ topo_data|safe }}'+")")
+LINK_DATA = eval("("+'{{ link_data|safe }}'+")")
+</script>
 <script src="{{ STATIC_URL }}js/echarts-2.2.5/build/dist/echarts.js"></script>
 <script src="{{ STATIC_URL }}js/topological_graph.js"></script>
 {% endblock %}

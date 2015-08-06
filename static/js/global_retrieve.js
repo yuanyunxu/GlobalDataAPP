@@ -28,14 +28,13 @@ function submitQuery(form,curPage,pageSize){
             success: function(data){
                 if(data.status && data.status=="ok")
                 {   
-                   // alert("ok");
                     var result=data.result.allList;
                     var swInfoUrl="http://sc.research.intra.nsfocus.com:8888/sc/knowledgebase/network/switch/";
                     $("#tbl tbody").empty();
                     for(var i=0; i<result.length; i++){
                         var flow=result[i];
                         var recStr="<tr>";
-                        if(flow.matchlist.length===0)continue;
+                        if(flow.matchlist.length===0) continue;
                         var fm=flow.matchlist[0];
                         recStr+="<td>"+fm.dataLayerSource+"</td>"
                         +"<td>"+fm.dataLayerDestination+"</td>"
@@ -86,7 +85,7 @@ function submitQuery(form,curPage,pageSize){
 }
 $(document).ready(function(){
     $("#query_btn").click(function(){
-        submitQuery($("#query_form"),1,pageSize);
+        submitQuery($("#query_form"),curPage,pageSize);
     });
     $("#test_btn").click(function(){
         testFormat($("#query_form"));
