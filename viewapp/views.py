@@ -24,6 +24,8 @@ logger = getLogger("views_logger")
 TOPO_URL = 'http://192.168.19.1:8081/wm/topology/links/json'   # Define the topo_graph's data source
 
 LINK_URL = 'http://192.168.19.1:8081/wm/device/'
+
+GLOBAL_URL = 'http://192.168.19.1:8888/sc/globalflow/'
 def index(request):
     """
     Home Page of data application,show the introduction of the
@@ -46,10 +48,15 @@ def topological_graph_show(request):
 
     status2, link_data = client.http_request(LINK_URL,"GET")
     link_data=json.dumps(link_data)
+
+    status3, global_data = client.http_request(GLOBAL_URL,"GET")
+    global_data=json.dumps(global_data)
+
     args_data = {
             'cv_topological_graph': True,
             'topo_data': topo_data,
             'link_data': link_data,
+            'global_data': global_data,
             }
     return render_to_response('viewapp/topological_graph.html',
                               args_data,

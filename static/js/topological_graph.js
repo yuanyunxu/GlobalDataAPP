@@ -1,25 +1,66 @@
-TOPO_URL = 'http://192.168.19.1:8081/wm/topology/links/json' <!--拓扑URL
-LINK_URL = 'http://192.168.19.1:8081/wm/device/' <!-- 主机和交换机的链接关系URL
-DATA_URL = 'http://192.168.19.1:8888/sc/globalflow/' <!-- 全局流数据的URL
-
-<!-- 通过URL得到的结果为列表，列表中每个成员都是一个json对象,目前存在跨域问题
-function obtain_data(url){
-    if (window.XMLHttpRequest) {
-        xmlHttp = new XMLHttpRequest
-    } 
-    else {
-        xmlHttp = new ActiveXObject
-    }
-    <!-- xmlHttp.onreadystatechange = writeSource() 不知道之后检测readystate会有什么意外
-    xmlHttp.open("GET",url,true);
-    xmlHttp.send(null)
-    if (xmlHttp.readyState == 4) {
-        var tmpData = xmlHttp.responseText
-        var result = eval("("+tmpData+")")
-    }
-    return result
+var protoDict={
+    1:"icmp",
+    6:"tcp",
+    17:"udp",
+    58:"icmp6"
 }
+var pageSize=10;
+var allPage=0;
+var curPage=1;
+function submitQuery(form,curPage,pageSize){
+    with(form){
+        $.ajax({
+            type:"POST",
+            url: "submit",
+            data: {
+                src_mac: src_mac.value,
+                dst_mac: dst_mac.value,
+                src_ip: src_ip.value,
+                dst_ip: dst_ip.value,
+                src_port: src_port.value,
+                dst_port: dst_port.value,
+                proto: proto.value,
+                curPage: curPage,
+                size: pageSize
+            },
+            dataType: 'json',
+            async: false,
+            success: function(data){
+                if(data.status && data.status=="ok")
+                {   
+                    var result=data.result.allList;
+                    var legendData = [] 
+                    for(var i=0; i<result.length; i++){
+                        var flow=result[i];
+                        if(flow.matchlist.length===0) continue;
+                        var fm=flow.matchlist[0];
+                        var legendName = fm.dataLayerSource+'-->'+fm.dataLayerDestination
+                        lengendData.push(legendName)
+                    }
+                }
+                else
+                {   
+                    alert("response error: " + result.status+", msg: "+result.msg);
+                } 
+            },
+            failure: function(errMsg) {
+                alert("ajax error: " + result.msg);
+            }
+        }); 
+    }
+// 8.6 worked till here!!!!!!!!!!!1
+    return false;
+}
+$(document).ready(function(){
+    $("#query_btn").click(function(){
+        submitQuery($("#query_form"),curPage,pageSize);
+    });
+    $("#test_btn").click(function(){
+        testFormat($("#query_form"));
+    });
+});
 
+//echarts related
 
 function unique(arr){
     var result = [], isRepeated;
@@ -36,60 +77,6 @@ function unique(arr){
     }
     }
     return result;
-}
-
-GLOBAL_DATA = {
-    "status": "ok",
-    "result": {
-        "83e9b80891341b517f0c5355fffa2fb6": {
-            "matchlist": [
-                {
-                    "id": "91fc742a6e595a18a8d60bfe3c4431c5",
-                    "wildcards": 3678448,
-                    "inputPort": -2,
-                    "dataLayerSource": "da:2b:ae:ac:6d:04",
-                    "dataLayerDestination": "9a:c6:60:d9:2f:59",
-                    "dataLayerVirtualLan": -1,
-                    "dataLayerVirtualLanPriorityCodePoint": 0,
-                    "dataLayerType": "0x0800",
-                    "networkTypeOfService": "0",
-                    "networkProtocol": 1,
-                    "networkSource": "10.0.0.2",
-                    "networkDestination": "10.0.0.1",
-                    "networkSourceInt": -1,
-                    "networkDestinationInt": -1,
-                    "transportSource": 0,
-                    "transportDestination": 0,
-                    "networkDestinationMaskLen": 32,
-                    "networkSourceMaskLen": 32,
-                    "queryPage": 1,
-                    "querySize": 5,
-                    "match": "e0:db:55:1f:99:b4;c8:1f:66:f3:c5:43;0.0.0.0;0.0.0.0;0;0;0;-1;-1;0;0;0;0;3678448",
-                    "redirect": true
-                }
-            ],
-            "pathlink": [
-                {
-                    "nodeId": "00:00:00:00:00:00:00:04",
-                    "portId": 1
-                },
-                {
-                    "nodeId": "00:00:00:00:00:00:00:02",
-                    "portId": 3
-                },
-                {
-                    "nodeId": "00:00:00:00:00:00:00:05",
-                    "portId": 2
-                },
-                {
-                    "nodeId": "00:00:00:00:00:00:00:03",
-                    "portId": null
-                }
-            ],
-            "packetCount": 113,
-            "byteCount": 11074
-        }
-    }
 }
 
 <!-- echarts related
@@ -216,7 +203,7 @@ require(
                                             symbol:'emptyCircle',
 					    symbolSize : 10,
                 effect : {
-                    show: false,
+                    show: true,
                     shadowBlur : 0
                 },
                 itemStyle:{
@@ -247,43 +234,30 @@ require(
                     switchNode.push(dstSwitch) 
 			}
                 var switchNodeSet = unique(switchNode)
+
+                // draft the point Location
 		var i = 0
 		var k = 0
                 for (var q = 0,x=parseInt(switchNodeSet.length/2);q<x;q++){
                     var addConst = 2*x/50
                     pointData[i] = {'name':switchNodeSet[q],value:1}
-                    var xis = (300*(q+addConst)/(x+addConst)-150).toFixed(2)
-                    var yis = Math.sqrt((1-xis*xis/(150*150))*50*50).toFixed(2)
+                    var xis = (240*(q+addConst)/(x+addConst)-120).toFixed(2)
+                    var yis = Math.sqrt((1-xis*xis/(120*120))*30*30).toFixed(2)
                     geoCoord1[switchNodeSet[q]] = [ xis, yis ]
                     console.log(geoCoord1[switchNodeSet[q]])
                     i++
                 }
                 for (var q = parseInt(switchNodeSet.length/2),x=switchNodeSet.length;q<x;q++){
-                    var addConst = x/50
+                    var addConst = 2*x/50
                     pointData[i] = {'name':switchNodeSet[q],value:1}
-                    var xis = (300*(q-parseInt(x/2)+addConst)/(x-x/2)-170+addConst).toFixed(2)
-                    var yis = (-Math.sqrt((1-xis*xis/(150*150))*50*50)).toFixed(2)
+                    var xis = (240*(q-parseInt(x/2)+addConst)/(x-x/2)-120+addConst).toFixed(2)
+                    var yis = (-Math.sqrt((1-xis*xis/(120*120))*30*30)).toFixed(2)
                     geoCoord1[switchNodeSet[q]] = [ xis,yis]
                     console.log(geoCoord1[switchNodeSet[q]])
                     i++
                 }
-/**
-                for (var q = parseInt(switchNodeSet.length/4),x=parseInt(switchNodeSet.length/2);q<x;q++){
-                    pointData[i] = {'name':switchNodeSet[q],value:1}
-                    geoCoord1[switchNodeSet[q]] = [ (180*(q-parseInt(switchNodeSet.length/4))/(x-parseInt(switchNodeSet.length/4))-180).toFixed(2),(90*q/x).toFixed(2)]
-                    i++
-                }
-                for (var q = parseInt(switchNodeSet.length/2),x=parseInt(3*switchNodeSet.length/4);q<x;q++){
-                    pointData[i] = {'name':switchNodeSet[q],value:1}
-                    geoCoord1[switchNodeSet[q]] = [ (-(180*q/x-180)).toFixed(2),(90*q/x).toFixed(2)]
-                    i++
-                }
-                for (var q = parseInt(3*switchNodeSet.length/4),x=switchNodeSet.length;q<x;q++){
-                    pointData[i] = {'name':switchNodeSet[q],value:1}
-                    geoCoord1[switchNodeSet[q]] = [ (-(180*q/x-180)).toFixed(2),(-(90*q/x)).toFixed(2)]
-                    i++
-                }
-**/
+
+                // draft the swtich link line
                 for (var json=0;json<topoData.length;json++)
                 {
                     var srcSwitch = topoData[json]['src-switch']
@@ -297,8 +271,8 @@ require(
 			{
 				for (var j = 0;j<hostSwitcherData[json]["mac"].length;j++)
 				{
-                        pointData[i] = {'name':hostSwitcherData[json]["mac"][j],value:10}
-			geoCoord1[hostSwitcherData[json]["mac"][j]] = [parseFloat(geoCoord1[hostSwitcherData[json]['attachmentPoint'][0]["switchDPID"]][0])+parseFloat((10*Math.random()).toFixed(2)),parseFloat(geoCoord1[hostSwitcherData[json]['attachmentPoint'][0]['switchDPID']][1])+parseFloat((10*Math.random()).toFixed(2))]
+                        pointData[i] = {'name':hostSwitcherData[json]["mac"][j],value:10,symbolSize:5}
+			geoCoord1[hostSwitcherData[json]["mac"][j]] = [parseFloat(geoCoord1[hostSwitcherData[json]['attachmentPoint'][0]["switchDPID"]][0])+parseFloat((60*Math.random()-30).toFixed(2)),parseFloat(geoCoord1[hostSwitcherData[json]['attachmentPoint'][0]['switchDPID']][1])+parseFloat((60*Math.random()-30).toFixed(2))]
 			i = i + 1
 				}
 			}
