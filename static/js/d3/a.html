@@ -1,0 +1,107 @@
+<html>
+<head>
+<style>
+body {
+        background:white;
+}
+div { margin: -.8em auto; text-align:center; width: 90%; height: 390px }
+</style>
+<script type="text/javascript" src="amcharts.js"></script>
+<meta charset='utf-8'>
+</head>
+<body>
+<script type="text/javascript">
+var chart;
+var legend;
+
+var chartData = [
+{
+    country: '上海',
+    value: 260},
+{
+    country: "北京",
+    value: 201},
+{
+    country: "成都",
+    value: 65},
+{
+    country: "武汉",
+    value: 39},
+{
+    country: "天津",
+    value: 19},
+{
+    country: "乌鲁木齐",
+    value: 10}];
+
+AmCharts.ready(function() {
+    // 饼图
+    chart = new AmCharts.AmPieChart();
+    chart.dataProvider = chartData;
+    chart.titleField = "country";
+    chart.valueField = "value";
+    chart.outlineColor = "";
+    chart.outlineAlpha = 0.8;
+    chart.outlineThickness = 2;
+    chart.balloonText = "<a href=1>[[title]]<br><span style='font-size:14px'><b>[[value]]</b> ([[percents]]%)</a></span>";
+    // 3D
+    chart.depth3D = 20;
+    chart.angle = 30;
+
+
+    
+
+    // SET UP CLICK EVENTS
+    
+    // create prerequisite properties
+    AmCharts.clickTimeout = 0;             // this will hold setTimeout reference
+    AmCharts.lastClick = 0;                // last click timestamp
+    AmCharts.doubleClickDuration = 300;    // distance between clicks in ms - if it's less than that - it's a doubleckick
+
+    AmCharts.doSingleClick = function (event) {
+        alert( "Single Click"+event.dataItem.title );
+    }
+
+    AmCharts.doDoubleClick = function (event) {
+        alert( "Double Click"+event.dataItem.title );
+    }
+    
+    // create click handler
+    AmCharts.myClickHandler = function (event) {
+        var ts = (new Date()).getTime();
+        if ((ts - AmCharts.lastClick) < AmCharts.doubleClickDuration) {
+            // it's double click!
+            // let's clear the timeout so the "click" event does not fire
+            if (AmCharts.clickTimeout) {
+                clearTimeout(AmCharts.clickTimeout);
+            }
+            
+            // reset last click
+            AmCharts.lastClick = 0;
+            
+            // now let's do whatever we want to do on double-click
+            AmCharts.doDoubleClick(event);
+        }
+        else {
+            // single click!
+            // let's delay it to see if a second click will come through
+            AmCharts.clickTimeout = setTimeout(function () {
+                // let's do whatever we want to do on single click
+                AmCharts.doSingleClick(event);
+            }, AmCharts.doubleClickDuration);
+        }
+        AmCharts.lastClick = ts;
+    }
+    
+    // add handler to the chart
+    chart.addListener("clickSlice", AmCharts.myClickHandler);
+
+    // 图形写入
+    chart.write("chartdiv");
+});
+</script>
+
+<div id="chartdiv"></div>
+
+</body>
+</html>
