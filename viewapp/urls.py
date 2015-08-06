@@ -10,5 +10,8 @@ urlpatterns = patterns('',
         url(r'^topological_graph$', views.topological_graph_show, name='topological_graph'),
         url(r'^global_retrieve$', views.global_retrieve_show, name='global_retrieve'),
         url(r'^flow_statis$', views.flow_statis_show, name='flow_statis'),
+        url(r'^submit$', views.dealWithForm, name='submit'),#Copy from the globaltraffic
+        url(r'^submitFlow$', views.dealWithFormFlow),
+
         #url(r'^retrieve$', views.retrieve_show, name='retrieve'),
         )

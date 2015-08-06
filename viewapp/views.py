@@ -15,6 +15,7 @@ from django.shortcuts import render   #Copy From global_traffic
 from django.template import RequestContext
 from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET
+from django.views.decorators.http import require_POST
 
 from logging import getLogger
 
@@ -89,6 +90,7 @@ def get_date_range(request):
 sc="http://192.168.19.12:8888"
 def testFormat(req):
     return HttpResponse('{"status":"ok","result":[{"matchlist":[{"wildcards":3145728,"inputPort":0,"dataLayerSource":"00:11:22:03:04:02","dataLayerDestination":"00:90:0b:01:78:e9","dataLayerVirtualLan":-1,"dataLayerVirtualLanPriorityCodePoint":0,"dataLayerType":2048,"networkTypeOfService":"0","networkProtocol":6,"networkSource":"10.201.111.1","networkDestination":"163.177.153.55","transportSource":-9331,"transportDestination":80,"networkDestinationMaskLen":32,"networkSourceMaskLen":32,"match":"00:90:0b:01:78:e900:11:22:03:04:022048-1-1163.177.153.5532610.201.111.132080-93313145728"}],"pathlink":{"dpid":"00:00:e0:db:55:1f:00:01","inport":"1","prevNodeOutport":"s","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:02","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:04","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:07","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]},{"dpid":"00:00:00:1e:08:09:00:08","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]}]}]},{"dpid":"00:00:00:1e:08:09:00:03","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:05","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]},{"dpid":"00:00:00:1e:08:09:00:06","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null},{"dpid":null,"inport":null,"prevNodeOutport":"3","nextNodes":null}]}]}]}}]}')
+
 def dealWithFormFlow(request):
     print "ok"
     req= request.REQUEST#json.loads(request.body)
@@ -123,6 +125,7 @@ def dealWithFormFlow(request):
     resp=json.dumps(result)
     #print str(resp)
     return HttpResponse(resp)
+@require_POST
 def dealWithForm(request):
     print "request body:"
     print str(request.body)
