@@ -1,3 +1,4 @@
+
 var protoDict={
     1:"icmp",
     6:"tcp",
@@ -26,59 +27,58 @@ function submitQuery(form,curPage,pageSize){
             dataType: 'json',
             async: false,
             success: function(data){
-                if(data.status && data.status=="ok")
+                if(data.status=="ok")
                 {   
+		    legendData = [] 
+		    seriesDataList = []
                     var result=data.result.allList;
-                    var legendData = [] 
                     for(var i=0; i<result.length; i++){
-                        var flow=result[i];
-                        if(flow.matchlist.length===0) continue;
-                        var fm=flow.matchlist[0];
+                        var seriesData = {}
+                        var flow=result[i]
+                        if(flow.matchlist.length===0) continue
+                        var fm=flow.matchlist[0]
+                        var fp=flow.pathlink
                         var legendName = fm.dataLayerSource+'-->'+fm.dataLayerDestination
-                        lengendData.push(legendName)
+                        legendData.push(legendName)
+                        seriesData['name'] = legendName
+                        seriesData['type'] = 'map'
+                        seriesData['mapType'] = 'world'
+                        seriesData['data'] = []
+                        seriesData['markLine'] = {}
+                        seriesData['markLine']['effect'] = {}
+                        seriesData['markLine']['effect']['show'] = true
+                        seriesData['markLine']['effect']['scaleSize'] = 2
+                        seriesData['markLine']['effect']['period'] = 30
+                        seriesData['markLine']['effect']['color'] = 'red'
+                        seriesData['markLine']['effect']['shadowBlur'] = 10
+                        seriesData['markLine']['itemStyle'] = {}
+                        seriesData['markLine']['itemStyle']['normal'] = {}
+                        seriesData['markLine']['itemStyle']['normal']['borderWidth'] = 1
+                        seriesData['markLine']['itemStyle']['normal']['lineStyle'] = {}
+                        seriesData['markLine']['itemStyle']['normal']['lineStyle']['type'] = 'solid'
+                        seriesData['markLine']['itemStyle']['normal']['lineStyle']['shadowBlur'] = 10
+                        var pathLink = []
+                        pathLink.push({'name':fm.dataLayerSource,'value':5})
+                        for (var k =0; k<fp.length; k++){
+                            pathLink.push({'name':fp[k]['nodeId'],'value':5})
+                        }
+                        pathLink.push({'name':fm.dataLayerDestination,'value':5})
+                        seriesData['markLine']['data'] = []
+                        for (var n=0; n<pathLink.length-1;n++){
+                        seriesData['markLine']['data'].push([{'name':pathLink[n]['name'],'value':5},{'name':pathLink[n+1]['name']}])
+                        }
+                        seriesData['markPoint'] = {}
+                        seriesData['markPoint']['symbol'] = 'emptyCircle'
+                        seriesData['markPoint']['symbolSize'] = 10
+                        seriesData['markPoint']['effect'] = {}
+                        seriesData['markPoint']['effect']['show'] = true
+                        seriesData['markPoint']['effect']['shadowBlur'] = 0
+                        seriesData['markPoint']['itemStyle'] = {}
+                        seriesData['markPoint']['itemStyle']['normal'] = {'label':{'show':false}}
+                        seriesData['markPoint']['itemStyle']['emphasis'] = {'label':{'position':'top'}}
+                        seriesData['markPoint']['data'] = pathLink
+                        seriesDataList.push(seriesData)
                     }
-                }
-                else
-                {   
-                    alert("response error: " + result.status+", msg: "+result.msg);
-                } 
-            },
-            failure: function(errMsg) {
-                alert("ajax error: " + result.msg);
-            }
-        }); 
-    }
-// 8.6 worked till here!!!!!!!!!!!1
-    return false;
-}
-$(document).ready(function(){
-    $("#query_btn").click(function(){
-        submitQuery($("#query_form"),curPage,pageSize);
-    });
-    $("#test_btn").click(function(){
-        testFormat($("#query_form"));
-    });
-});
-
-//echarts related
-
-function unique(arr){
-    var result = [], isRepeated;
-    for (var i = 0 ;i<arr.length;i++){
-	isRepeated = false;
-	for (var j=0;j<result.length;j++){
-	    if (arr[i] == result[j]){
-		isRepeated = true;
-		break;
-	    }
-	}
-	if (!isRepeated){
-	    result.push(arr[i]);
-    }
-    }
-    return result;
-}
-
 <!-- echarts related
 require.config({
 	paths:{
@@ -110,11 +110,9 @@ require(
                                 legend:{
                                     orient:'vertical',
                                     x:'left',
-                                    data:['da:2b:ae:ac:6d:04 -> 9a:c6:60:d9:2f:59'],
+                                    data:[],
                                     selectedMode:'single', 
-                                    selected:{
-                                    'da:2b:ae:ac:6d:04 -> 9a:c6:60:d9:2f:59':false,
-                                    },
+                                    selected:{},
                                 },
 				dataRange:{
 					min:0,
@@ -175,48 +173,6 @@ require(
 							},
 						geoCoord:{}
 						},
-                                                {
-                                        name:'da:2b:ae:ac:6d:04 -> 9a:c6:60:d9:2f:59',
-                                        type:'map', 
-                                        mapType:'world',
-                                        data:[],
-                                        markLine:{
-                                            effect:{
-                                                show:true,
-                                                scaleSize:2,
-                                                period:30,
-                                                color:'red',
-                                                shadowBlur:10
-                                            },
-                                            itemStyle:{
-                                                normal:{
-                                                    borderWidth:1,
-                                                    lineStyle:{
-                                                        type:'solid',
-                                                        shadowBlur:10
-                                                    }
-                                                }
-                                            },
-                                        data:[]
-                                        },
-                                        markPoint:{
-                                            symbol:'emptyCircle',
-					    symbolSize : 10,
-                effect : {
-                    show: true,
-                    shadowBlur : 0
-                },
-                itemStyle:{
-                    normal:{
-                        label:{show:false}
-                    },
-                    emphasis: {
-                        label:{position:'top'}
-                    }
-                },
-                data:[]
-                                        }
-                                        }
 				]
 						};
 
@@ -244,7 +200,6 @@ require(
                     var xis = (240*(q+addConst)/(x+addConst)-120).toFixed(2)
                     var yis = Math.sqrt((1-xis*xis/(120*120))*30*30).toFixed(2)
                     geoCoord1[switchNodeSet[q]] = [ xis, yis ]
-                    console.log(geoCoord1[switchNodeSet[q]])
                     i++
                 }
                 for (var q = parseInt(switchNodeSet.length/2),x=switchNodeSet.length;q<x;q++){
@@ -253,7 +208,6 @@ require(
                     var xis = (240*(q-parseInt(x/2)+addConst)/(x-x/2)-120+addConst).toFixed(2)
                     var yis = (-Math.sqrt((1-xis*xis/(120*120))*30*30)).toFixed(2)
                     geoCoord1[switchNodeSet[q]] = [ xis,yis]
-                    console.log(geoCoord1[switchNodeSet[q]])
                     i++
                 }
 
@@ -287,6 +241,7 @@ require(
 			}
 
 
+/**
                 var globalData = GLOBAL_DATA
                 var pointData2 = []
                 var lineData2 = [] 
@@ -303,12 +258,58 @@ require(
                 {
                 lineData2.push([{name:pointData2[n]["name"],value:5},{name:pointData2[n+1]["name"]}])
                 }
+**/
                 
 		option.series[0].geoCoord = geoCoord1
 		option.series[0].markPoint.data = pointData
 		option.series[0].markLine.data = lineData
-                option.series[1].markPoint.data = pointData2
-                option.series[1].markLine.data = lineData2
+                option.legend['data'] = legendData
+                var selected = {}
+                for (var p=0; p<legendData.length; p++){
+                    selected[legendData[p]] = false
+                }
+                option.legend['slected'] = selected
+                for (var p=0; p<seriesDataList.length; p++){
+                    option.series.push(seriesDataList[p])
+                }
 		myChart.setOption(option);
 		}
 		)
+                }
+                else
+                {   
+                    alert("response error: " + result.status+", msg: "+result.msg);
+                } 
+            },
+            failure: function(errMsg) {
+                alert("ajax error: " + result.msg);
+            }
+        }); 
+    }
+    return false;
+}
+$(document).ready(function(){
+    $("#query_btn").click(function(){
+        submitQuery($("#query_form"),curPage,pageSize);
+    });
+})
+
+//echarts related
+
+function unique(arr){
+    var result = [], isRepeated;
+    for (var i = 0 ;i<arr.length;i++){
+	isRepeated = false;
+	for (var j=0;j<result.length;j++){
+	    if (arr[i] == result[j]){
+		isRepeated = true;
+		break;
+	    }
+	}
+	if (!isRepeated){
+	    result.push(arr[i]);
+    }
+    }
+    return result;
+}
+
