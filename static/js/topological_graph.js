@@ -58,14 +58,14 @@ function submitQuery(form,curPage,pageSize){
                         seriesData['markLine']['itemStyle']['normal']['lineStyle']['type'] = 'solid'
                         seriesData['markLine']['itemStyle']['normal']['lineStyle']['shadowBlur'] = 10
                         var pathLink = []
-                        pathLink.push({'name':fm.dataLayerSource,'value':5})
+                        pathLink.push({'name':fm.dataLayerSource,'value':parseInt(flow.byteCount)})
                         for (var k =0; k<fp.length; k++){
-                            pathLink.push({'name':fp[k]['nodeId'],'value':5})
+                            pathLink.push({'name':fp[k]['nodeId'],'value':parseInt(flow.byteCount)})
                         }
-                        pathLink.push({'name':fm.dataLayerDestination,'value':5})
+                        pathLink.push({'name':fm.dataLayerDestination,'value':parseInt(flow.byteCount)})
                         seriesData['markLine']['data'] = []
                         for (var n=0; n<pathLink.length-1;n++){
-                        seriesData['markLine']['data'].push([{'name':pathLink[n]['name'],'value':5},{'name':pathLink[n+1]['name']}])
+                        seriesData['markLine']['data'].push([{'name':pathLink[n]['name'],'value':pathLink[n]['value']},{'name':pathLink[n+1]['name']}])
                         }
                         seriesData['markPoint'] = {}
                         seriesData['markPoint']['symbol'] = 'emptyCircle'
@@ -94,6 +94,9 @@ require(
 		],
 		function (ec){
 			var myChart = ec.init(document.getElementById('main'));
+                        var dataRangeMax = 30000
+                        var macRangeData = 15000
+                        var switcherRangeData = 1
 			var option = {
 				backgroundColor:'#fff',
 				color: ['gold','aqua','lime'],
@@ -116,7 +119,7 @@ require(
                                 },
 				dataRange:{
 					min:0,
-					max:10,
+					max:dataRangeMax,
 					calculable:true,
 					color:['#ff3333','orange','yellow','lime','aqua'],
 					textStyle:{color:'#fff'}
@@ -196,7 +199,7 @@ require(
 		var k = 0
                 for (var q = 0,x=parseInt(switchNodeSet.length/2);q<x;q++){
                     var addConst = 2*x/50
-                    pointData[i] = {'name':switchNodeSet[q],value:1}
+                    pointData[i] = {'name':switchNodeSet[q],value:switcherRangeData}
                     var xis = (240*(q+addConst)/(x+addConst)-120).toFixed(2)
                     var yis = Math.sqrt((1-xis*xis/(120*120))*30*30).toFixed(2)
                     geoCoord1[switchNodeSet[q]] = [ xis, yis ]
@@ -204,7 +207,7 @@ require(
                 }
                 for (var q = parseInt(switchNodeSet.length/2),x=switchNodeSet.length;q<x;q++){
                     var addConst = 2*x/50
-                    pointData[i] = {'name':switchNodeSet[q],value:1}
+                    pointData[i] = {'name':switchNodeSet[q],value:switcherRangeData}
                     var xis = (240*(q-parseInt(x/2)+addConst)/(x-x/2)-120+addConst).toFixed(2)
                     var yis = (-Math.sqrt((1-xis*xis/(120*120))*30*30)).toFixed(2)
                     geoCoord1[switchNodeSet[q]] = [ xis,yis]
@@ -216,7 +219,7 @@ require(
                 {
                     var srcSwitch = topoData[json]['src-switch']
                     var dstSwitch = topoData[json]['dst-switch'] 
-                    lineData[k] = [{name:srcSwitch,value:10,effect:{show:false}},{name:dstSwitch,symbol:'circle'}]
+                    lineData[k] = [{name:srcSwitch,value:dataRangeMax,effect:{show:false}},{name:dstSwitch,symbol:'circle'}]
                     k = k + 1
                 }
 		for (var json=0;json<hostSwitcherData.length;json++)
@@ -225,7 +228,7 @@ require(
 			{
 				for (var j = 0;j<hostSwitcherData[json]["mac"].length;j++)
 				{
-                        pointData[i] = {'name':hostSwitcherData[json]["mac"][j],value:10,symbolSize:5}
+                        pointData[i] = {'name':hostSwitcherData[json]["mac"][j],value:macRangeData,symbolSize:5}
 			geoCoord1[hostSwitcherData[json]["mac"][j]] = [parseFloat(geoCoord1[hostSwitcherData[json]['attachmentPoint'][0]["switchDPID"]][0])+parseFloat((60*Math.random()-30).toFixed(2)),parseFloat(geoCoord1[hostSwitcherData[json]['attachmentPoint'][0]['switchDPID']][1])+parseFloat((60*Math.random()-30).toFixed(2))]
 			i = i + 1
 				}
@@ -234,7 +237,7 @@ require(
 			{
 				for (var j=0;j<hostSwitcherData[json]["attachmentPoint"].length;j++)
 				{
-					lineData[k] = [{name:hostSwitcherData[json]["mac"][0],smoothness:0,effect:{show:false},value:10},{name:hostSwitcherData[json]["attachmentPoint"][j]["switchDPID"],symbol:'circle'}]
+					lineData[k] = [{name:hostSwitcherData[json]["mac"][0],smoothness:0,effect:{show:false},value:dataRangeMax},{name:hostSwitcherData[json]["attachmentPoint"][j]["switchDPID"],symbol:'circle'}]
 					k = k + 1
 					}
 				}
