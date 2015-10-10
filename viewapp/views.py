@@ -26,6 +26,7 @@ TOPO_URL = 'http://192.168.19.1:8081/wm/topology/links/json'   # Define the topo
 LINK_URL = 'http://192.168.19.1:8081/wm/device/'
 
 GLOBAL_URL = 'http://192.168.19.1:8888/sc/globalflow/'
+
 def index(request):
     """
     Home Page of data application,show the introduction of the
