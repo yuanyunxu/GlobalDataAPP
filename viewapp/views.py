@@ -17,15 +17,17 @@ from django.views.decorators.cache import cache_control
 from django.views.decorators.http import require_GET
 from django.views.decorators.http import require_POST
 
+from ESClient import es_client
+
 from logging import getLogger
 
 logger = getLogger("views_logger")
 
-TOPO_URL = 'http://192.168.19.1:8081/wm/topology/links/json'   # Define the topo_graph's data source
+TOPO_URL = 'http://192.168.19.12:8081/wm/topology/links/json'   # Define the topo_graph's data source
 
-LINK_URL = 'http://192.168.19.1:8081/wm/device/'
+LINK_URL = 'http://192.168.19.12:8081/wm/device/'
 
-GLOBAL_URL = 'http://192.168.19.1:8888/sc/globalflow/'
+GLOBAL_URL = 'http://192.168.19.12:8888/sc/globalflow/'
 
 def index(request):
     """
@@ -82,6 +84,14 @@ def flow_statis_show(request):
                               args_data,
                               context_instance=RequestContext(request))
 
+@require_GET
+def record_retrieve(request):
+    args_data = {
+            'cv_record_retrieve': True,
+            }
+    return render_to_response('viewapp/record_retrieve.html',
+                              args_data,
+                              context_instance=RequestContext(request))
 def get_date_range(request):
 
     if 'datefrom' in request.GET and 'dateto' in request.GET:
@@ -99,7 +109,7 @@ def get_date_range(request):
 
 #Copy from the global_traffic
 
-sc="http://192.168.19.1:8888"
+sc="http://192.168.19.12:8888"
 def testFormat(req):
     return HttpResponse('{"status":"ok","result":[{"matchlist":[{"wildcards":3145728,"inputPort":0,"dataLayerSource":"00:11:22:03:04:02","dataLayerDestination":"00:90:0b:01:78:e9","dataLayerVirtualLan":-1,"dataLayerVirtualLanPriorityCodePoint":0,"dataLayerType":2048,"networkTypeOfService":"0","networkProtocol":6,"networkSource":"10.201.111.1","networkDestination":"163.177.153.55","transportSource":-9331,"transportDestination":80,"networkDestinationMaskLen":32,"networkSourceMaskLen":32,"match":"00:90:0b:01:78:e900:11:22:03:04:022048-1-1163.177.153.5532610.201.111.132080-93313145728"}],"pathlink":{"dpid":"00:00:e0:db:55:1f:00:01","inport":"1","prevNodeOutport":"s","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:02","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:04","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:07","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]},{"dpid":"00:00:00:1e:08:09:00:08","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]}]}]},{"dpid":"00:00:00:1e:08:09:00:03","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":"00:00:00:1e:08:09:00:05","inport":"1","prevNodeOutport":"2","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null}]},{"dpid":"00:00:00:1e:08:09:00:06","inport":"1","prevNodeOutport":"3","nextNodes":[{"dpid":null,"inport":null,"prevNodeOutport":"2","nextNodes":null},{"dpid":null,"inport":null,"prevNodeOutport":"3","nextNodes":null}]}]}]}}]}')
 
@@ -165,5 +175,32 @@ def dealWithForm(request):
     print 'post data:',post_str
     print 'url :',url
     status, result= client.http_request(url,"POST",post_str)
+    resp=json.dumps(result)
+    return HttpResponse(resp)
+
+def dealWithRecordForm(request):
+    print "request body:"
+    print str(request.body)
+    req= request.REQUEST#json.loads(request.body)
+    term={}
+    if(req.get('src_mac')):
+        term['src_mac']=req.get('src_mac')
+    if(req.get('dst_mac')):
+        term['dst_mac']=req.get('dst_mac')
+    if(req.get('src_ip')):
+        term['src_ip']=req.get('src_ip')
+    if(req.get('dst_ip')):
+        term['dst_ip']=req.get('dst_ip')
+    if(req.get('src_port')):
+        term['src_port']=req.get('src_port')
+    if(req.get('dst_port')):
+        term['dst_port']=req.get('dst_port')
+    if(req.get('creatTime')):
+        term['createTime']=req.get('createTime')
+    if(req.get('lastTime')):
+        term['lastTime']=req.get('lastTime')
+    print term
+    result = es_client("jdbc","jdbc",term)
+    print result
     resp=json.dumps(result)
     return HttpResponse(resp)

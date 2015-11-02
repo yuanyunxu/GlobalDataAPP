@@ -1,4 +1,3 @@
-
 var protoDict={
     1:"icmp",
     6:"tcp",
@@ -12,7 +11,7 @@ function submitQuery(form,curPage,pageSize){
     with(form){
         $.ajax({
             type:"POST",
-            url: "submit",
+            url: "submit_record",
             data: {
                 src_mac: src_mac.value,
                 dst_mac: dst_mac.value,
@@ -21,8 +20,6 @@ function submitQuery(form,curPage,pageSize){
                 src_port: src_port.value,
                 dst_port: dst_port.value,
                 proto: proto.value,
-                curPage: curPage,
-                size: pageSize
             },
             dataType: 'json',
             async: false,

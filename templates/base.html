@@ -63,6 +63,13 @@ $.ajaxSetup({"error":function(XMLHttpRequest,textStatus, errorThrown) {
 			{% endif %}
 			<a href="{% url 'flow_statis' %}">Flow Statistic</a>
 			</li>
+			{% if cv_record_retrieve %}
+			<li class="active">
+			{% else %}
+			<li>
+			{% endif %}
+			<a href="{% url 'record_retrieve' %}">History Record Retrieve</a>
+			</li>
 			{% if user.is_superuser %}
 			<li class="">
 			<a href="{% url 'admin:index' %}">Admin</a>
