@@ -70,11 +70,6 @@ $.ajaxSetup({"error":function(XMLHttpRequest,textStatus, errorThrown) {
 			{% endif %}
 			<a href="{% url 'record_retrieve' %}">History Record Retrieve</a>
 			</li>
-			{% if user.is_superuser %}
-			<li class="">
-			<a href="{% url 'admin:index' %}">Admin</a>
-			</li>
-			{% endif %}
 			</ul>
 		</div>
 	<div class="content">

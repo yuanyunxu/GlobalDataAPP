@@ -271,11 +271,11 @@ require(
 	}
                 else
                 {   
-                    alert("response error: " + result.status+", msg: "+result.msg);
+                    alert("response error");
                 } 
             },
             failure: function(errMsg) {
-                alert("ajax error: " + result.msg);
+                alert("ajax error: ");
             }
         }); 
     }

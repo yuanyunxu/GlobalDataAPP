@@ -18,6 +18,8 @@
         <tr><td>目的IP: </td><td><input type="text" name="dst_ip" id="dst_ip"/></td></tr>
         <tr><td>源端口: </td><td><input type="text" name="src_port" id="src_port"/></td></tr>
         <tr><td>目的端口: </td><td><input type="text" name="dst_port" id="dst_port" /></td></tr>
+        <tr><td>创建时间: </td><td><input type="text" name="createTime" id="createTime" /></td></tr>
+        <tr><td>结束时间: </td><td><input type="text" name="lastTime" id="lastTime" /></td></tr>
         <tr><td>应用层协议: </td><td><select name="proto" id="proto"><option value="">全部</option><option value="1">icmp</option><option value="6">tcp</option><option value="17">udp</option><option value="58">icmp6</option></select></td></tr>
         </tbody></table>
         <button id="query_btn">查询</button>
@@ -32,5 +34,5 @@ LINK_DATA = eval("("+'{{ link_data|safe }}'+")")
 GLOBAL_DATA = eval("("+'{{ global_data|safe }}'+")")
 </script>
 <script src="{{ STATIC_URL }}js/echarts-2.2.5/build/dist/echarts.js"></script>
-<script src="{{ STATIC_URL }}js/topological_graph.js"></script>
+<script src="{{ STATIC_URL }}js/record_retrieve.js"></script>
 {% endblock %}
