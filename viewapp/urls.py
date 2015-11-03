@@ -12,6 +12,7 @@ urlpatterns = patterns('',
         url(r'^flow_statis$', views.flow_statis_show, name='flow_statis'),
         url(r'^record_retrieve$', views.record_retrieve, name='record_retrieve'),
         url(r'^submit$', views.dealWithForm, name='submit'),#Copy from the globaltraffic
+        url(r'^submit_record_form$', views.dealWithRecordForm, name='submit_record_form'),
         url(r'^submit_record$', views.dealWithRecordForm, name='submit_record'),
         url(r'^submitFlow$', views.dealWithFormFlow),
 

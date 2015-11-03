@@ -86,12 +86,21 @@ def flow_statis_show(request):
 
 @require_GET
 def record_retrieve(request):
+    status1, topo_data= client.http_request(TOPO_URL,"GET")
+    topo_data=json.dumps(topo_data)
+
+    status2, link_data = client.http_request(LINK_URL,"GET")
+    link_data=json.dumps(link_data)
+
     args_data = {
             'cv_record_retrieve': True,
+            'topo_data': topo_data,
+            'link_data': link_data,
             }
     return render_to_response('viewapp/record_retrieve.html',
                               args_data,
                               context_instance=RequestContext(request))
+
 def get_date_range(request):
 
     if 'datefrom' in request.GET and 'dateto' in request.GET:
@@ -201,6 +210,10 @@ def dealWithRecordForm(request):
         term['lastTime']=req.get('lastTime')
     print term
     result = es_client("jdbc","jdbc",term)
-    print result
-    resp=json.dumps(result)
+    res_list = []
+    for hit in result['hits']['hits']:
+       res_list.append(hit['_source'])
+    print res_list
+    res_dic = {'result':res_list}
+    resp=json.dumps(res_dic)
     return HttpResponse(resp)

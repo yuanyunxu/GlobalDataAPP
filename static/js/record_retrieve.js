@@ -2,7 +2,7 @@ function submitQuery(form){
     with(form){
         $.ajax({
             type:"POST",
-            url: "submit_record",
+            url: "submit_record_form",
             data: {
                 src_mac: src_mac.value,
                 dst_mac: dst_mac.value,
@@ -16,19 +16,15 @@ function submitQuery(form){
             dataType: 'json',
             async: false,
             success: function(data){
-                document.write(data)
-                if(data.status=="ok")
 	{   
 	    legendData = [] 
 	    seriesDataList = []
-	    var result=data.result.allList;
+	    var result=data.result;
 	    for(var i=0; i<result.length; i++){
 		var seriesData = {}
 		var flow=result[i]
-		if(flow.matchlist.length===0) continue
-		var fm=flow.matchlist[0]
-		var fp=flow.pathlink
-		var legendName = fm.dataLayerSource+'-->'+fm.dataLayerDestination
+		var fp=flow.links
+		var legendName = flow.src_mac+'-->'+flow.dst_mac
 		legendData.push(legendName)
 		seriesData['name'] = legendName
 		seriesData['type'] = 'map'
@@ -48,11 +44,11 @@ function submitQuery(form){
 		seriesData['markLine']['itemStyle']['normal']['lineStyle']['type'] = 'solid'
 		seriesData['markLine']['itemStyle']['normal']['lineStyle']['shadowBlur'] = 10
 		var pathLink = []
-		pathLink.push({'name':fm.dataLayerSource,'value':parseInt(flow.byteCount)})
+		pathLink.push({'name':flow.src_mac,'value':parseInt(flow.byte_count)})
 		for (var k =0; k<fp.length; k++){
-		    pathLink.push({'name':fp[k]['nodeId'],'value':parseInt(flow.byteCount)})
+		    pathLink.push({'name':fp[k][0],'value':parseInt(flow.byte_Count)})//解决小括号里两个值的问题
 		}
-		pathLink.push({'name':fm.dataLayerDestination,'value':parseInt(flow.byteCount)})
+		pathLink.push({'name':flow.dst_mac,'value':parseInt(flow.byte_Count)})
 		seriesData['markLine']['data'] = []
 		for (var n=0; n<pathLink.length-1;n++){
 		seriesData['markLine']['data'].push([{'name':pathLink[n]['name'],'value':pathLink[n]['value']},{'name':pathLink[n+1]['name']}])
@@ -269,10 +265,6 @@ require(
 	}
 	)
 	}
-                else
-                {   
-                    alert("response error");
-                } 
             },
             failure: function(errMsg) {
                 alert("ajax error: ");
