@@ -1,3 +1,35 @@
+console.log(GLOBAL_DATA)
+// init the dom
+var d_src_mac = document.getElementById('src_mac')
+d_src_mac.options.add(new Option("全部",""))
+for(var tmp = 0; tmp< SRC_MAC.length; tmp++){
+    d_src_mac.options.add(new Option(SRC_MAC[tmp],SRC_MAC[tmp]))
+}
+var d_dst_mac = document.getElementById('dst_mac')
+d_dst_mac.options.add(new Option("全部",""))
+for(var tmp = 0; tmp< DST_MAC.length; tmp++){
+    d_dst_mac.options.add(new Option(DST_MAC[tmp],DST_MAC[tmp]))
+}
+var d_src_ip = document.getElementById('src_ip')
+d_src_ip.options.add(new Option("全部",""))
+for(var tmp = 0; tmp< SRC_IP.length; tmp++){
+    d_src_ip.options.add(new Option(SRC_IP[tmp],SRC_IP[tmp]))
+}
+var d_dst_ip = document.getElementById('dst_ip')
+d_dst_ip.options.add(new Option("全部",""))
+for(var tmp = 0; tmp< DST_IP.length; tmp++){
+    d_dst_ip.options.add(new Option(DST_IP[tmp],DST_IP[tmp]))
+}
+var d_src_port = document.getElementById('src_port')
+d_src_port.options.add(new Option("全部",""))
+for(var tmp = 0; tmp< SRC_PORT.length; tmp++){
+    d_src_port.options.add(new Option(SRC_PORT[tmp],SRC_PORT[tmp]))
+}
+var d_dst_port = document.getElementById('dst_port')
+d_dst_port.options.add(new Option("全部",""))
+for(var tmp = 0; tmp< DST_PORT.length; tmp++){
+    d_dst_port.options.add(new Option(DST_PORT[tmp],DST_PORT[tmp]))
+}
 var protoDict={
     1:"icmp",
     6:"tcp",
@@ -31,9 +63,11 @@ function submitQuery(form,curPage,pageSize){
             seriesDataList = []
                     console.log('data:')
                     console.log(data)
+                    var byteCountList = []
                     var result=data.result.allList;
                     console.log(result)
                     for(var i=0; i<result.length; i++){
+                        byteCountList.push(parseInt(result[i].byteCount))
                         var seriesData = {}
                         var flow=result[i]
                         if(flow.matchlist.length===0) continue
@@ -58,6 +92,25 @@ function submitQuery(form,curPage,pageSize){
                         seriesData['markLine']['itemStyle']['normal']['lineStyle'] = {}
                         seriesData['markLine']['itemStyle']['normal']['lineStyle']['type'] = 'solid'
                         seriesData['markLine']['itemStyle']['normal']['lineStyle']['shadowBlur'] = 10
+                        seriesData['data'].push({
+                            "src_mac":fm.dataLayerSource,
+                            "dst_mac":fm.dataLayerDestination,
+                            "src_ip":fm.networkSource,
+                            "dst_ip":fm.networkDestination,
+                            "dataLayerType":fm.dataLayerType,
+                            "dataLayerVirtualLan":fm.dataLayerVirtualLan,
+                            "dataLayerVirtualLanPriorityCodePoint":fm.dataLayerVirtualLanPriorityCodePoint,
+                            "inputPort":fm.inputPort,
+                            "networkDestinationInt":fm.networkDestinationInt,
+                            "networkDestinationMaskLen":fm.networkDestinationMaskLen,
+                            "networkProtocol":fm.networkProtocol,
+                            "networkSourceInt":fm.networkSourceInt,
+                            "networkSourceMaskLen":fm.networkSourceMaskLen,
+                            "networkTypeOfService":fm.networkTypeOfService,
+                            "wildcards":fm.wildcards,
+                            "byteCount":flow.byteCount,
+                            "packetCount":flow.packetCount
+                        })
                         var pathLink = []
                         pathLink.push({'name':fm.dataLayerSource,'value':parseInt(flow.byteCount)})
                         for (var k =0; k<fp.length; k++){
@@ -80,6 +133,9 @@ function submitQuery(form,curPage,pageSize){
                         seriesData['markPoint']['data'] = pathLink
                         seriesDataList.push(seriesData)
                     }
+                    console.log("byteCountList")
+                    console.log(byteCountList)
+                    var MAX_BYTECOUNT = Math.max.apply(null,byteCountList)
 <!-- echarts related
 require.config({
     paths:{
@@ -95,21 +151,17 @@ require(
         ],
         function (ec){
             var myChart = ec.init(document.getElementById('main'));
-                        var dataRangeMax = 30000
-                        var macRangeData = 15000
+                        var dataRangeMax = MAX_BYTECOUNT + 1
+                        var macRangeData = dataRangeMax/2
                         var switcherRangeData = 1
             var option = {
-                backgroundColor:'#fff',
+                backgroundColor:'#1b1b1b',
                 color: ['gold','aqua','lime'],
                 title:{
                     text:'Topological Graph',
                     subtext:'Can also detecte ARP attack',
                     x:'center',
-                    textStyle:{color:'#1b1b1b'}
-                },
-                tooltip:{
-                    trigger:'item',
-                    formatter:'{b}'
+                    textStyle:{color:'#fff'}
                 },
                 legend:{
                     orient:'vertical',
@@ -117,6 +169,23 @@ require(
                     data:[],
                     selectedMode:'single',
                     selected:{},
+                    textStyle:{
+                        color:'#fff'
+                    },
+                },
+                toolbox:{
+                    show:true,
+                    orient:'vertical',
+                    x:'right',
+                    y:'center',
+                    feature:{
+                        mark:{show:true},
+                        dataView:{show:true,readOnly:true},
+                        saveAsImage:{show:true}
+                    }
+                },
+                tooltip:{
+                    show:false
                 },
                 dataRange:{
                     min:0,
@@ -134,10 +203,10 @@ require(
                         mapType:'world',
                         itemStyle:{
                             normal:{
-                                borderColor:'#fff',
+                                borderColor:'#1b1b1b',
                                 borderWidth:0.5,
                                 areaStyle:{
-                                    color:'#fff'
+                                    color:'#1b1b1b'
                                     }
                                 },
                         },
@@ -163,12 +232,45 @@ require(
                                 normal:{
                                 color:'#fff',
                                 borderWidth:1,
-                                borderColor:'black'
+                                borderColor:'rgba(30,144,255,0.5)',
+                                label:{show:false},
                                 },
                             },
                             data:[],
                         },
-                        geoCoord:{}
+                        geoCoord:{},
+                        tooltip:{
+                            trigger:'item',
+                            showDelay:0,
+                            hideDelay:50,
+                            transitionDuration:0,
+                            backgroundColor:'rgba(255,0,255,0.7)',
+                            borderColor:'#f50',
+                            borderRadius:8,
+                            borderWidth:2,
+                            padding:10,
+                            position:function(p){
+                                return [p[0]+10,p[1]-10];
+                            },
+                            textStyle:{
+                                color:'yellow',
+                                decoration:'none',
+                                fontFamily:'Verdana,sans-serif',
+                                fontSize:15,
+                                fontStyle:'italic',
+                                fontWeight:'bold'
+                            },
+                            formatter:function(params,ticket,callback){
+                                console.log(params)
+                                var res = 'Function formatter:<br/>' + params[0].name;
+                                for (var i = 0,l = params.length;i<l;i++){
+                                    res += '<br/>' + params[i].seriesName + ':' + params[i].value;
+                                }
+                                setTimeout(function(){
+                                    callback(ticket,res);
+                                },1000)
+                            },
+                        },
                     },
                 ]
             };
@@ -243,8 +345,43 @@ require(
                 for (var p=0; p<legendData.length; p++){
                     selected[legendData[p]] = false
                 }
-                option.legend['slected'] = selected
+                //option.legend['selected'] = selected
                 for (var p=0; p<seriesDataList.length; p++){
+                seriesDataList[p]["tooltip"] ={
+                    "show":true,
+                    "trigger":'item',
+                    "showDelay":0,
+                    "hideDelay":50,
+                    "transitionDuration":0,
+                    "backgroundColor":'rgba(255,0,255,0.7)',
+                    "borderColor":'#f50',
+                    "borderRadius":8,
+                    "borderWidth":2,
+                    "padding":10,
+                    "position":function(p){
+                        return [p[0]+10,p[1]-10];
+                    },
+                    "textStyle":{
+                        "color":'yellow',
+                        "decoration":'none',
+                        "fontFamily":'Verdana,sans-serif',
+                        "fontSize":15,
+                        "fontStyle":'italic',
+                        "fontWeight":'bold'
+                    },
+                    "formatter":function(params,ticket,callback){
+                        console.log(params)
+                        var res = "itemInfo as below: <br />" +params[0];
+                        data = params["series"].data[0]
+                        for (var i in data){
+                            res += '<br/>' + i + ':' + data[i];
+                        }
+                        //setTimeout(function(){
+                        //    callback(ticket,res);
+                        //},1000)
+                        return res;
+                    },
+                },
                     option.series.push(seriesDataList[p])
                 }
         myChart.setOption(option);

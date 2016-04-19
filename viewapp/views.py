@@ -60,20 +60,44 @@ def topological_graph_show(request):
     status3, global_data = HTTPclient.http_request(GLOBAL_URL,"GET")
     global_data=json.dumps(global_data)
 
-    #client = elasticsearch.Elasticsearch(ES_HOST)
-    #client.cluster = 'yuyuan'
-    #indices_client = elasticsearch.client.IndicesClient(client)
-    #try:
-    #    indices_client.delete('current')
-    #finally:
-    #    indices_client.create(index='current')
-    #    client.create(index = 'current', doc_type = 'globalflow',body = global_data)
+    #为了动态加载页面中的搜索项，方便用户知道有什么备选src_mac等可供查询
+    parse_data = json.loads(global_data)
+    result = parse_data["result"]
+    src_mac = []
+    dst_mac = []
+    src_ip = []
+    dst_ip = []
+    src_port = []
+    dst_port = []
+    for key in result:
+        try:
+            src_mac.append(result[key]["matchlist"][0]["dataLayerSource"])
+            dst_mac.append(result[key]["matchlist"][0]['dataLayerDestination'])
+            src_ip.append(result[key]['matchlist'][0]['networkSource'])
+            dst_ip.append(result[key]['matchlist'][0]['networkDestination'])
+            src_port.append(result[key]['matchlist'][0]['transportSource'])
+            dst_port.append(result[key]['matchlist'][0]['transportDestination'])
+        except:
+            continue
+    src_mac = json.dumps(list(set(src_mac)))
+    dst_mac = json.dumps(list(set(dst_mac)))
+    src_ip = json.dumps(list(set(src_ip)))
+    dst_ip = json.dumps(list(set(dst_ip)))
+    src_port = json.dumps(list(set(src_port)))
+    dst_port = json.dumps(list(set(dst_port)))
+    parse_data = json.dumps(result)
 
     args_data = {
             'cv_topological_graph': True,
             'topo_data': topo_data,
             'link_data': link_data,
             'global_data': global_data,
+            'src_mac':src_mac,
+            'dst_mac':dst_mac,
+            'src_ip':src_ip,
+            'dst_ip':dst_ip,
+            'src_port':src_port,
+            'dst_port':dst_port,
             }
     return render_to_response('viewapp/topological_graph.html',
                               args_data,

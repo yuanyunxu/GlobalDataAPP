@@ -13,12 +13,12 @@
     <div id=query_form>
         <table class="table table-bordered table-striped datatable">
         <tbody width=70%>
-        <tr><td>源MAC地址: </td><td><input type="text" name="src_mac" id="src_mac"/></td></tr>
-        <tr><td>目的MAC地址: </td><td><input type="text" name="dst_mac" id="dst_mac"/></td><tr>
-        <tr><td>源IP:</td><td><input type="text" name="src_ip" id="src_ip"/></td></tr>
-        <tr><td>目的IP: </td><td><input type="text" name="dst_ip" id="dst_ip"/></td></tr>
-        <tr><td>源端口: </td><td><input type="text" name="src_port" id="src_port"/></td></tr>
-        <tr><td>目的端口: </td><td><input type="text" name="dst_port" id="dst_port" /></td></tr>
+        <tr><td>源MAC地址: </td><td><select name="src_mac" id="src_mac"></select></td></tr>
+        <tr><td>目的MAC地址: </td><td><select type="text" name="dst_mac" id="dst_mac"></select></td><tr>
+        <tr><td>源IP:</td><td><select name="src_ip" id="src_ip"></select></td></tr>
+        <tr><td>目的IP: </td><td><select name="dst_ip" id="dst_ip"></select></td></tr>
+        <tr><td>源端口: </td><td><select name="src_port" id="src_port"></select></td></tr>
+        <tr><td>目的端口: </td><td><select name="dst_port" id="dst_port"></select></td></tr>
         <tr><td>应用层协议: </td><td><select name="proto" id="proto"><option value="">全部</option><option value="1">icmp</option><option value="6">tcp</option><option value="17">udp</option><option value="58">icmp6</option></select></td></tr>
         </tbody></table>
         <button id="query_btn">查询</button>
@@ -30,6 +30,12 @@
 TOPO_DATA = eval("("+'{{ topo_data|safe }}'+")")
 LINK_DATA = eval("("+'{{ link_data|safe }}'+")")
 GLOBAL_DATA = eval("("+'{{ global_data|safe }}'+")")
+SRC_MAC = eval("("+'{{ src_mac|safe }}'+")")
+DST_MAC = eval("("+'{{ dst_mac|safe }}'+")")
+SRC_IP = eval("("+'{{ src_ip|safe }}'+")")
+DST_IP = eval("("+'{{ dst_ip|safe }}'+")")
+SRC_PORT = eval("("+'{{ src_port|safe }}'+")")
+DST_PORT = eval("("+'{{ dst_port|safe }}'+")")
 </script>
 <script src="{{ STATIC_URL }}js/echarts-2.2.5/build/dist/echarts.js"></script>
 <script src="{{ STATIC_URL }}js/topological_graph.js"></script>
