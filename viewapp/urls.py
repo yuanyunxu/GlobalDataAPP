@@ -15,6 +15,7 @@ urlpatterns = patterns('',
         url(r'^submit_record_form$', views.dealWithRecordForm, name='submit_record_form'),
         url(r'^submit_record$', views.dealWithRecordForm, name='submit_record'),
         url(r'^submitFlow$', views.dealWithFormFlow),
+        url(r'^os_topology$', views.os_topology,name='os_topology'),
 
         #url(r'^retrieve$', views.retrieve_show, name='retrieve'),
         )

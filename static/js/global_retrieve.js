@@ -27,7 +27,8 @@ function submitQuery(form,curPage,pageSize){
             async: false,
             success: function(data){
                 if(data.status && data.status=="ok")
-                {   
+                {
+                    console.log(data)
                     var result=data.result.allList;
                     var swInfoUrl="http://sc.research.intra.nsfocus.com:8888/sc/knowledgebase/network/switch/";
                     $("#tbl tbody").empty();

@@ -5,24 +5,24 @@ try:
     from urlparse import urlparse
 except ImportError:
     from urllib.parse import urlparse
-def http_request(url, method='GET', body='', headers={}, auth=None): 
-    
+def http_request(url, method='GET', body='', headers={}, auth=None):
+
     th = {
         'Accept': 'application/json',
         'Content-Type': 'application/json; charset=UTF-8'
     }
 
-    for (k,v) in  headers.items(): 
+    for (k,v) in  headers.items():
         th[k]=v
-    
+
     target = urlparse(url)
-    
+
     h = http.Http()
-    
+
     # If you need authentication some example:
     if auth:
         h.add_credentials(auth.user, auth.password)
-    
+
     response, content = h.request(
             target.geturl(),
             method,

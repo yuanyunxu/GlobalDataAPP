@@ -3,8 +3,8 @@
 
 from elasticsearch import Elasticsearch
 
-def es_client(index,doc_type,term):
-    client = Elasticsearch()
+def search(ES_HOST,index,doc_type,term):
+    client = Elasticsearch(ES_HOST)
     client.cluster = 'yuyuan'
     should = []
     for key in term:
