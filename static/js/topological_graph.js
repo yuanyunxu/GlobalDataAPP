@@ -280,25 +280,24 @@ require(
         var pointData = []
         var lineData = []
         var geoCoord1 = {}
-        var switchNodeSet = unique(switchNode)
         var switchNode=[]
-    	for (var json=0;json<topoData.length;json++)
-    	{
-    	    var srcSwitch = topoData[json]["src-switch"]
-    	    var dstSwitch = topoData[json]["dst-switch"]
-    	    switchNode.push(srcSwitch)
-    	    switchNode.push(dstSwitch)
+        for (var json=0;json<topoData.length;json++)
+        {
+            var srcSwitch = topoData[json]["src-switch"]
+            var dstSwitch = topoData[json]["dst-switch"]
+            switchNode.push(srcSwitch)
+            switchNode.push(dstSwitch)
         }
-    	for (var json=0;json<hostSwitcherData.length;json++)
-    	{
-    	   var switchDPID = hostSwitcherData[json].attachmentPoint
-    	   if (switchDPID.length == 0){
-    	       continue
+        for (var json=0;json<hostSwitcherData.length;json++)
+        {
+           var switchDPID = hostSwitcherData[json].attachmentPoint
+           if (switchDPID.length == 0){
+               continue
         }
-    	    var Switch = switchDPID[0].switchDPID
-    	    switchNode.push(Switch)
+            var Switch = switchDPID[0].switchDPID
+            switchNode.push(Switch)
         }
-    	var switchNodeSet = unique(switchNode)
+        var switchNodeSet = unique(switchNode)
 
         // draft the point Location
         var i = 0
